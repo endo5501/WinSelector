@@ -12,51 +12,43 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets LinguistTools)
 find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets LinguistTools)
 
-set(TS_FILES WinSelector_ja_JP.ts)
+set(TS_FILES resources/WinSelector_ja_JP.ts)
 
 set(PROJECT_SOURCES
-        main.cpp
-        mainwindow.cpp
-        mainwindow.h
-        mainwindow.ui
+        src/main.cpp
+        src/mainwindow.cpp
+        src/mainwindow.h
+        src/mainwindow.ui
+        src/windowscanner.cpp
+        src/windowscanner.h
+        src/windowtile.cpp
+        src/windowtile.h
+        src/flowlayout.cpp
+        src/flowlayout.h
+        src/win32utils.cpp
+        src/win32utils.h
+        src/config.h
+        resources/resources.qrc
         ${TS_FILES}
 )
 
-if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
-    qt_add_executable(WinSelector
-        MANUAL_FINALIZATION
-        ${PROJECT_SOURCES}
-    )
-# Define target properties for Android with Qt 6 as:
-#    set_property(TARGET WinSelector APPEND PROPERTY QT_ANDROID_PACKAGE_SOURCE_DIR
-#                 ${CMAKE_CURRENT_SOURCE_DIR}/android)
-# For more information, see https://doc.qt.io/qt-6/qt-add-executable.html#target-creation
-
-    qt_create_translation(QM_FILES ${CMAKE_SOURCE_DIR} ${TS_FILES})
-else()
-    if(ANDROID)
-        add_library(WinSelector SHARED
-            ${PROJECT_SOURCES}
-        )
-# Define properties for Android with Qt 5 after find_package() calls as:
-#    set(ANDROID_PACKAGE_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/android")
-    else()
-        add_executable(WinSelector
-            ${PROJECT_SOURCES}
-        )
-    endif()
-
-    qt5_create_translation(QM_FILES ${CMAKE_SOURCE_DIR} ${TS_FILES})
+if(WIN32)
+    set(PROJECT_SOURCES ${PROJECT_SOURCES} resources/WinSelector.rc)
 endif()
+
+qt_add_executable(WinSelector
+    MANUAL_FINALIZATION
+    ${PROJECT_SOURCES}
+)
+
+qt_create_translation(QM_FILES ${CMAKE_SOURCE_DIR} ${TS_FILES})
 
 target_link_libraries(WinSelector PRIVATE Qt${QT_VERSION_MAJOR}::Widgets)
 
-# Qt for iOS sets MACOSX_BUNDLE_GUI_IDENTIFIER automatically since Qt 6.1.
-# If you are developing for iOS or macOS you should consider setting an
-# explicit, fixed bundle identifier manually though.
-if(${QT_VERSION} VERSION_LESS 6.1.0)
-  set(BUNDLE_ID_OPTION MACOSX_BUNDLE_GUI_IDENTIFIER com.example.WinSelector)
+if(WIN32)
+    target_link_libraries(WinSelector PRIVATE user32 gdi32 psapi)
 endif()
+
 set_target_properties(WinSelector PROPERTIES
     ${BUNDLE_ID_OPTION}
     MACOSX_BUNDLE_BUNDLE_VERSION ${PROJECT_VERSION}
@@ -72,6 +64,26 @@ install(TARGETS WinSelector
     RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
 )
 
-if(QT_VERSION_MAJOR EQUAL 6)
-    qt_finalize_executable(WinSelector)
+# Find windeployqt executable
+if(WIN32)
+    find_program(WINDEPLOYQT_EXECUTABLE windeployqt)
+
+    if(WINDEPLOYQT_EXECUTABLE)
+        # Deploy Qt dependencies after install
+        install(CODE "
+            execute_process(
+                COMMAND \"${WINDEPLOYQT_EXECUTABLE}\" \"\${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_BINDIR}/WinSelector.exe\" --no-translations --no-opengl-sw --no-system-dxc-compiler --no-compiler-runtime --no-network --no-svg --no-system-d3d-compiler
+                RESULT_VARIABLE deploy_result
+            )
+            if(NOT deploy_result EQUAL 0)
+                message(WARNING \"windeployqt failed with result: \${deploy_result}\")
+            else()
+                message(STATUS \"Successfully deployed Qt dependencies\")
+            endif()
+        ")
+    else()
+        message(WARNING "windeployqt not found. Qt DLLs will not be automatically deployed.")
+    endif()
 endif()
+
+qt_finalize_executable(WinSelector)

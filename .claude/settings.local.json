@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(nul)",
+      "Bash(findstr:*)",
+      "Bash(powershell -Command \"Get-Content ''D:\\Programs\\Qt\\WinSelector\\debug.log'' | Select-Object -Last 100\")"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}
