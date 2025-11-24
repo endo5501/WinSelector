@@ -177,5 +177,16 @@ void MainWindow::createTrayIcon()
     trayMenu->addAction(quitAction);
 
     m_trayIcon->setContextMenu(trayMenu);
+    connect(m_trayIcon, &QSystemTrayIcon::activated, this, &MainWindow::onTrayIconActivated);
     m_trayIcon->show();
+}
+
+void MainWindow::onTrayIconActivated(QSystemTrayIcon::ActivationReason reason)
+{
+    if (reason == QSystemTrayIcon::Trigger)
+    {
+        show();
+        raise();
+        QWidget::activateWindow();
+    }
 }

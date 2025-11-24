@@ -39,6 +39,7 @@ private:
     void updateTiles(const QList<WindowInfo> &windows);
     void adjustWindowGeometry();
     void createTrayIcon();
+    void onTrayIconActivated(QSystemTrayIcon::ActivationReason reason);
 
     QSystemTrayIcon *m_trayIcon;
 };
