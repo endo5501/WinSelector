@@ -46,12 +46,7 @@ public:
      */
     QSize sizeHint() const override;
 
-    // Configuration Constants
-    static constexpr int TILE_WIDTH = 250;
-    static constexpr int TILE_HEIGHT = 30;
-    static constexpr int ICON_SIZE = 16;       // Reduced from 32
-    static constexpr int CONTENT_MARGIN = 2;   // Reduced from 5
-    static constexpr int INTERNAL_SPACING = 5; // Reduced from 10
+    // Configuration is now handled by Settings class
 
 signals:
     /**

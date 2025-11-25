@@ -1,4 +1,5 @@
 #include "windowtile.h"
+#include "config.h"
 #include <QAction>
 #include <QHBoxLayout>
 #include <QMenu>
@@ -10,14 +11,14 @@ WindowTile::WindowTile(const WindowInfo &info, QWidget *parent)
     setupStyle();
     setCursor(Qt::PointingHandCursor);
     // Set a fixed height for consistency, width can be flexible or fixed
-    setFixedHeight(TILE_HEIGHT);
-    setFixedWidth(TILE_WIDTH); // Initial fixed width, can be adjusted
+    setFixedHeight(WinSelectorConfig::WindowTile::height());
+    setFixedWidth(WinSelectorConfig::WindowTile::width()); // Initial fixed width, can be adjusted
 }
 
 QSize WindowTile::sizeHint() const
 {
     // Return the fixed size for proper layout calculations
-    return QSize(TILE_WIDTH, TILE_HEIGHT);
+    return QSize(WinSelectorConfig::WindowTile::width(), WinSelectorConfig::WindowTile::height());
 }
 
 void WindowTile::setInfo(const WindowInfo &info)
@@ -26,7 +27,7 @@ void WindowTile::setInfo(const WindowInfo &info)
 
     if (!m_info.icon.isNull())
     {
-        m_iconLabel->setPixmap(m_info.icon.pixmap(ICON_SIZE, ICON_SIZE));
+        m_iconLabel->setPixmap(m_info.icon.pixmap(WinSelectorConfig::WindowTile::iconSize(), WinSelectorConfig::WindowTile::iconSize()));
     }
     else
     {
@@ -35,7 +36,7 @@ void WindowTile::setInfo(const WindowInfo &info)
 
     // Calculate available width for title
     // Fixed width - margins(left+right) - spacing - icon
-    int availableWidth = TILE_WIDTH - (CONTENT_MARGIN * 2) - INTERNAL_SPACING - ICON_SIZE;
+    int availableWidth = WinSelectorConfig::WindowTile::width() - (WinSelectorConfig::WindowTile::contentMargin() * 2) - WinSelectorConfig::WindowTile::internalSpacing() - WinSelectorConfig::WindowTile::iconSize();
     QFontMetrics metrics(m_titleLabel->font());
     QString elidedTitle = metrics.elidedText(m_info.title, Qt::ElideRight, availableWidth);
     m_titleLabel->setText(elidedTitle);
@@ -45,11 +46,11 @@ void WindowTile::setInfo(const WindowInfo &info)
 void WindowTile::setupUi()
 {
     QHBoxLayout *layout = new QHBoxLayout(this);
-    layout->setContentsMargins(CONTENT_MARGIN, CONTENT_MARGIN, CONTENT_MARGIN, CONTENT_MARGIN);
-    layout->setSpacing(INTERNAL_SPACING);
+    layout->setContentsMargins(WinSelectorConfig::WindowTile::contentMargin(), WinSelectorConfig::WindowTile::contentMargin(), WinSelectorConfig::WindowTile::contentMargin(), WinSelectorConfig::WindowTile::contentMargin());
+    layout->setSpacing(WinSelectorConfig::WindowTile::internalSpacing());
 
     m_iconLabel = new QLabel(this);
-    m_iconLabel->setFixedSize(ICON_SIZE, ICON_SIZE);
+    m_iconLabel->setFixedSize(WinSelectorConfig::WindowTile::iconSize(), WinSelectorConfig::WindowTile::iconSize());
     m_iconLabel->setScaledContents(true);
 
     m_titleLabel = new QLabel(this);

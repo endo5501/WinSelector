@@ -86,6 +86,94 @@ Simply run `WinSelector.exe`. The panel will appear on the right edge of your sc
 
 To exit the application, close it from the system taskbar or Task Manager.
 
+## Configuration
+
+WinSelector can be customized through the `Settings.ini` file, which is automatically created in the application directory on first run with default values.
+
+### Settings.ini Configuration Options
+
+```ini
+[MainWindow]
+# Window list refresh interval in milliseconds
+RefreshIntervalMs=2000
+
+# Delay after closing a window before refreshing the list (in milliseconds)
+CloseRefreshDelayMs=500
+
+# Initial width of the panel (in pixels)
+InitialWidth=300
+
+# Minimum width of the panel (in pixels)
+MinimumWidth=300
+
+[Layout]
+# Margin around the layout (in pixels)
+Margin=2
+
+# Horizontal spacing between tiles (in pixels)
+HSpacing=2
+
+# Vertical spacing between tiles (in pixels)
+VSpacing=2
+
+[WindowScanner]
+# Maximum length for window titles
+MaxTitleLength=256
+
+[WindowTile]
+# Width of each window tile (in pixels)
+Width=250
+
+# Height of each window tile (in pixels)
+Height=30
+
+# Size of the window icon (in pixels)
+IconSize=16
+
+# Content margin inside each tile (in pixels)
+ContentMargin=2
+
+# Internal spacing between icon and title (in pixels)
+InternalSpacing=5
+
+[Shortcuts]
+# Shortcut key to toggle panel visibility
+# Supported keys: Home, End, Left, Right, Up, Down, PageUp, PageDown,
+#                 Insert, Delete, Space, Backspace, Return, Enter, Escape, Tab,
+#                 F1-F12, A-Z, 0-9
+ToggleVisibility=Home
+```
+
+### Customization Examples
+
+**Increase panel width and tile size:**
+```ini
+[MainWindow]
+InitialWidth=400
+MinimumWidth=400
+
+[WindowTile]
+Width=350
+Height=40
+IconSize=24
+```
+
+**Change the toggle shortcut to F12:**
+```ini
+[Shortcuts]
+ToggleVisibility=F12
+```
+
+**Reduce spacing for a more compact layout:**
+```ini
+[Layout]
+Margin=1
+HSpacing=1
+VSpacing=1
+```
+
+Changes to `Settings.ini` require restarting the application to take effect.
+
 ## Architecture
 
 ### Core Components
@@ -116,11 +204,13 @@ WinSelector/
 │   ├── windowtile.{h,cpp}    # Window tile widget
 │   ├── flowlayout.{h,cpp}    # Custom vertical-flow layout
 │   ├── win32utils.{h,cpp}    # Win32 API utilities
-│   └── config.h              # Configuration constants
+│   ├── settings.{h,cpp}      # Settings management
+│   └── config.h              # Configuration accessor functions
 ├── resources/
 │   ├── WinSelector_ja_JP.ts  # Japanese translation
 │   ├── resources.qrc         # Qt resource file
 │   └── WinSelector.rc        # Windows resource file
+├── Settings.ini              # User configuration file (auto-generated)
 └── CMakeLists.txt            # Build configuration
 ```
 
@@ -138,7 +228,7 @@ The project supports Japanese localization through Qt's translation system. To a
 ### Future Improvements
 
 - **Performance**: Implement differential updates instead of recreating all tiles every refresh
-- **Customization**: Add settings for panel position, width, and refresh interval
+- **Settings UI**: Add graphical settings dialog for easier configuration
 - **Filtering**: Add ability to filter or search windows
 - **Multi-monitor**: Support for positioning on different monitors
 - **Themes**: Customizable color schemes and transparency levels

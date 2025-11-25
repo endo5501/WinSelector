@@ -21,13 +21,13 @@ MainWindow::MainWindow(QWidget *parent)
 
     m_refreshTimer = new QTimer(this);
     connect(m_refreshTimer, &QTimer::timeout, this, &MainWindow::refreshWindows);
-    m_refreshTimer->start(WinSelectorConfig::MainWindow::REFRESH_INTERVAL_MS);
+    m_refreshTimer->start(WinSelectorConfig::MainWindow::refreshIntervalMs());
 
     refreshWindows();
 
     // Register global hotkey (Home key)
     // ID 1 for toggle visibility
-    Win32Utils::registerHotKey((HWND)winId(), 1, 0, VK_HOME);
+    Win32Utils::registerHotKey((HWND)winId(), 1, 0, Settings::instance().getToggleVisibilityKeyVk());
 }
 
 MainWindow::~MainWindow() 
@@ -45,18 +45,18 @@ void MainWindow::setupUi()
     // Layout
     m_containerWidget = new QWidget(this);
     m_flowLayout = new FlowLayout(m_containerWidget,
-                                  WinSelectorConfig::Layout::MARGIN,
-                                  WinSelectorConfig::Layout::HSPACING,
-                                  WinSelectorConfig::Layout::VSPACING);
+                                  WinSelectorConfig::Layout::margin(),
+                                  WinSelectorConfig::Layout::hSpacing(),
+                                  WinSelectorConfig::Layout::vSpacing());
     m_flowLayout->setRTL(true);
     setCentralWidget(m_containerWidget);
 
     // Position on right edge
     QScreen *screen = QGuiApplication::primaryScreen();
     QRect screenGeom = screen->geometry();
-    setGeometry(screenGeom.width() - WinSelectorConfig::MainWindow::INITIAL_WIDTH,
+    setGeometry(screenGeom.width() - WinSelectorConfig::MainWindow::initialWidth(),
                 0,
-                WinSelectorConfig::MainWindow::INITIAL_WIDTH,
+                WinSelectorConfig::MainWindow::initialWidth(),
                 screenGeom.height());
 }
 
@@ -145,9 +145,9 @@ void MainWindow::adjustWindowGeometry()
     int requiredWidth = m_flowLayout->totalWidthForHeight(availableGeom.height());
 
     // Ensure minimum width to avoid tiny window when empty
-    if (requiredWidth < WinSelectorConfig::MainWindow::MINIMUM_WIDTH)
+    if (requiredWidth < WinSelectorConfig::MainWindow::minimumWidth())
     {
-        requiredWidth = WinSelectorConfig::MainWindow::MINIMUM_WIDTH;
+        requiredWidth = WinSelectorConfig::MainWindow::minimumWidth();
     }
 
     setGeometry(availableGeom.width() - requiredWidth,
@@ -170,7 +170,7 @@ void MainWindow::closeWindow(HWND hwnd)
     // Clear icon cache for this window
     Win32Utils::clearIconCache(hwnd);
     // Refresh after a short delay
-    QTimer::singleShot(WinSelectorConfig::MainWindow::CLOSE_REFRESH_DELAY_MS,
+    QTimer::singleShot(WinSelectorConfig::MainWindow::closeRefreshDelayMs(),
                        this, &MainWindow::refreshWindows);
 }
 

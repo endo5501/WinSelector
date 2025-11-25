@@ -28,6 +28,8 @@ set(PROJECT_SOURCES
         src/win32utils.cpp
         src/win32utils.h
         src/config.h
+        src/settings.cpp
+        src/settings.h
         resources/resources.qrc
         ${TS_FILES}
 )

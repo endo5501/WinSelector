@@ -5,6 +5,7 @@
 #include <QImage>
 #include <QPixmap>
 #include <QMap>
+#include <vector>
 
 // Static icon cache to avoid repeated icon fetching
 static QMap<HWND, QIcon> s_iconCache;
@@ -145,10 +146,10 @@ QString Win32Utils::getWindowTitle(HWND hwnd, bool *success)
     }
 
     // Use MAX_TITLE_LENGTH from config
-    WCHAR title[WinSelectorConfig::WindowScanner::MAX_TITLE_LENGTH] = {0};
+    int maxLen = WinSelectorConfig::WindowScanner::maxTitleLength();
+    std::vector<WCHAR> title(maxLen + 1, 0);
 
-    int length = GetWindowTextW(hwnd, title,
-                               WinSelectorConfig::WindowScanner::MAX_TITLE_LENGTH);
+    int length = GetWindowTextW(hwnd, title.data(), maxLen + 1);
 
     if (length == 0)
     {
@@ -166,7 +167,7 @@ QString Win32Utils::getWindowTitle(HWND hwnd, bool *success)
         *success = true;
     }
 
-    return QString::fromWCharArray(title);
+    return QString::fromWCharArray(title.data());
 }
 
 bool Win32Utils::activateWindow(HWND hwnd)
