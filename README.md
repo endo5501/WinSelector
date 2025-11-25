@@ -16,7 +16,7 @@ A lightweight, customizable alternative taskbar for Windows 11 built with Qt6. W
 
 ## Screenshots
 
-![](./images/image.png)
+![WinSelector screenshot](./images/image.png)
 
 ## Requirements
 

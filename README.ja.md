@@ -16,7 +16,7 @@ Qt6で構築されたWindows 11向けの軽量でカスタマイズ可能な代�
 
 ## スクリーンショット
 
-![](./images/image.png)
+![WinSelector screenshot](./images/image.png)
 
 ## 必要要件
 
