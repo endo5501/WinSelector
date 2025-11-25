@@ -69,6 +69,24 @@ public:
      */
     static HWND getForegroundWindow();
 
+    /**
+     * @brief Register a global hotkey
+     * @param hwnd Window handle to receive WM_HOTKEY messages
+     * @param id Hotkey identifier
+     * @param modifiers Key modifiers (MOD_ALT, MOD_CONTROL, etc.)
+     * @param vk Virtual key code
+     * @return true if successful, false otherwise
+     */
+    static bool registerHotKey(HWND hwnd, int id, UINT modifiers, UINT vk);
+
+    /**
+     * @brief Unregister a global hotkey
+     * @param hwnd Window handle
+     * @param id Hotkey identifier
+     * @return true if successful, false otherwise
+     */
+    static bool unregisterHotKey(HWND hwnd, int id);
+
 private:
     /**
      * @brief Log a Win32 API error with function name and error code

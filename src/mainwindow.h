@@ -36,6 +36,12 @@ public:
      */
     ~MainWindow();
 
+protected:
+    /**
+     * @brief Handle native window events (for global hotkeys)
+     */
+    bool nativeEvent(const QByteArray &eventType, void *message, qintptr *result) override;
+
 private:
     Ui::MainWindow *ui;
     FlowLayout *m_flowLayout;
@@ -43,6 +49,11 @@ private:
     QWidget *m_containerWidget;
 
     void setupUi();
+
+    /**
+     * @brief Toggle the visibility of the window tiles
+     */
+    void toggleVisibility();
 
     /**
      * @brief Refresh the list of open windows

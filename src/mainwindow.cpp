@@ -24,9 +24,17 @@ MainWindow::MainWindow(QWidget *parent)
     m_refreshTimer->start(WinSelectorConfig::MainWindow::REFRESH_INTERVAL_MS);
 
     refreshWindows();
+
+    // Register global hotkey (Home key)
+    // ID 1 for toggle visibility
+    Win32Utils::registerHotKey((HWND)winId(), 1, 0, VK_HOME);
 }
 
-MainWindow::~MainWindow() { delete ui; }
+MainWindow::~MainWindow() 
+{ 
+    Win32Utils::unregisterHotKey((HWND)winId(), 1);
+    delete ui; 
+}
 
 void MainWindow::setupUi()
 {
@@ -187,6 +195,34 @@ void MainWindow::onTrayIconActivated(QSystemTrayIcon::ActivationReason reason)
     {
         show();
         raise();
-        QWidget::activateWindow();
+        Win32Utils::activateWindow((HWND)winId());
+    }
+}
+
+bool MainWindow::nativeEvent(const QByteArray &eventType, void *message, qintptr *result)
+{
+    MSG *msg = static_cast<MSG *>(message);
+    if (msg->message == WM_HOTKEY)
+    {
+        if (msg->wParam == 1) // HOTKEY_ID_TOGGLE
+        {
+            toggleVisibility();
+            return true;
+        }
+    }
+    return QMainWindow::nativeEvent(eventType, message, result);
+}
+
+void MainWindow::toggleVisibility()
+{
+    if (isVisible())
+    {
+        hide();
+    }
+    else
+    {
+        show();
+        raise();
+        Win32Utils::activateWindow((HWND)winId());
     }
 }

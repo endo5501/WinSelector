@@ -232,3 +232,23 @@ HWND Win32Utils::getForegroundWindow()
 {
     return GetForegroundWindow();
 }
+
+bool Win32Utils::registerHotKey(HWND hwnd, int id, UINT modifiers, UINT vk)
+{
+    if (!RegisterHotKey(hwnd, id, modifiers, vk))
+    {
+        logWin32Error("RegisterHotKey");
+        return false;
+    }
+    return true;
+}
+
+bool Win32Utils::unregisterHotKey(HWND hwnd, int id)
+{
+    if (!UnregisterHotKey(hwnd, id))
+    {
+        logWin32Error("UnregisterHotKey");
+        return false;
+    }
+    return true;
+}

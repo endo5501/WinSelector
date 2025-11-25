@@ -12,6 +12,7 @@ A lightweight, customizable alternative taskbar for Windows 11 built with Qt6. W
 - **Always on Top**: Panel stays visible above other windows for instant access
 - **Auto-refresh**: Window list updates every 2 seconds to reflect system changes
 - **Vertical Flow Layout**: Windows arranged vertically, wrapping to new columns as needed
+- **Global Shortcut**: Toggle visibility instantly with the Home key
 
 ## Screenshots
 
@@ -78,6 +79,7 @@ This will use `windeployqt` to automatically copy all required Qt DLLs to the in
 
 Simply run `WinSelector.exe`. The panel will appear on the right edge of your screen.
 
+- **Home Key**: Toggle the visibility of the panel
 - **Left-click** a window tile to activate and bring that window to the foreground
 - **Right-click** a window tile to show the context menu and close the window
 - The panel automatically updates to show new windows and remove closed ones
