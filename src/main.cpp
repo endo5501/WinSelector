@@ -4,6 +4,12 @@
 #include <QLocale>
 #include <QTranslator>
 
+/**
+ * @brief Main entry point of the application
+ * @param argc Command line argument count
+ * @param argv Command line argument values
+ * @return Application exit code
+ */
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);

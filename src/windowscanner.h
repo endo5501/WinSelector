@@ -6,6 +6,9 @@
 #include <QIcon>
 #include <Windows.h>
 
+/**
+ * @brief Structure holding information about a window
+ */
 struct WindowInfo
 {
     HWND hwnd;
@@ -21,9 +24,16 @@ struct WindowInfo
     }
 };
 
+/**
+ * @brief Utility class for scanning open windows
+ */
 class WindowScanner
 {
 public:
+    /**
+     * @brief Get a list of all visible windows
+     * @return List of WindowInfo objects for visible windows
+     */
     static QList<WindowInfo> getWindows();
 };
 
