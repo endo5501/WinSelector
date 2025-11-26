@@ -89,14 +89,27 @@ QIcon Win32Utils::getWindowIcon(HWND hwnd)
     }
 
     HICON hIcon = nullptr;
-
+    DWORD_PTR result = 0;
+    
     // Try WM_GETICON (Big icon first)
-    hIcon = (HICON)SendMessage(hwnd, WM_GETICON, ICON_BIG, 0);
+    // Use SendMessageTimeout to avoid freezing when the target window is unresponsive
+    // SMTO_ABORTIFHUNG: Returns immediately if the target window is hung
+    // SMTO_BLOCK: Prevents the calling thread from processing other requests while waiting
+    if (SendMessageTimeout(hwnd, WM_GETICON, ICON_BIG, 0, 
+                          SMTO_ABORTIFHUNG | SMTO_BLOCK, 200, &result))
+    {
+        hIcon = (HICON)result;
+    }
 
     // Try WM_GETICON (Small icon)
     if (!hIcon)
     {
-        hIcon = (HICON)SendMessage(hwnd, WM_GETICON, ICON_SMALL, 0);
+        result = 0;
+        if (SendMessageTimeout(hwnd, WM_GETICON, ICON_SMALL, 0,
+                              SMTO_ABORTIFHUNG | SMTO_BLOCK, 200, &result))
+        {
+            hIcon = (HICON)result;
+        }
     }
 
     // Try GetClassLongPtr (HICON)
