@@ -11,12 +11,12 @@
             "program": "${command:cmake.launchTargetPath}",
             "args": [],
             "stopAtEntry": false,
-            "cwd": "${command:cmake.launchTargetDirectory}",
+            "cwd": "${command:cmake.getLaunchTargetDirectory}",
             "console": "internalConsole",
             "environment": [
                 {
                     "name": "PATH",
-                    "value": "C:/Qt/6.10.1/msvc2022_64/bin;${env:PATH}"
+                    "value": "${env:QT_SDK_DIR}/bin;${env:PATH}"
                 }
             ]
         }

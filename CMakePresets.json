@@ -17,12 +17,24 @@
           "lhs": "${hostSystemName}",
           "rhs": "Windows"
         },
+        "architecture": {
+          "value": "x64",
+          "strategy": "external"
+        },
         "cacheVariables": {
           "CMAKE_CXX_COMPILER": "cl.exe",
           "CMAKE_C_COMPILER": "cl.exe",
-          "CMAKE_PREFIX_PATH": "$env{QT_SDK_DIR}/msvc2022_64",
-          "CMAKE_TOOLCHAIN_FILE": "C:/Program Files/Microsoft Visual Studio/2022/Community/VC/vcpkg/scripts/buildsystems/vcpkg.cmake",
+          "CMAKE_PREFIX_PATH": "$env{QT_SDK_DIR}",
           "CMAKE_INSTALL_PREFIX": "${sourceDir}/build/${presetName}/output"
+        },
+        "environment": {
+          "VCINSTALLDIR" : "$env{MSVC2022_VCINSTALLDIR}",
+          "PATH": "$env{QT_SDK_DIR}/bin;$penv{PATH}"
+        },
+        "vendor": {
+          "microsoft.com/VisualStudioSettings/CMake/1.0": {
+            "hostOS": [ "Windows"]
+          }
         }
       },
         {

@@ -39,10 +39,11 @@ Download and install Qt6 from [qt.io](https://www.qt.io/download). Make sure to 
 
 ### 2. Set Environment Variable (Optional)
 
-For easier development, set the `QT_SDK_DIR` environment variable:
+For easier development, set the `QT_SDK_DIR` and `MSVC2022_VCINSTALLDIR` environment variable:
 
 ```cmd
 set QT_SDK_DIR=C:\path\to\Qt\6.x.x\msvc2022_64
+set MSVC2022_VCINSTALLDIR=C:/Program Files/Microsoft Visual Studio/2022/Community/VC
 ```
 
 ### 3. Configure and Build

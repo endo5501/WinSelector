@@ -39,10 +39,11 @@ Qt6で構築されたWindows 11向けの軽量でカスタマイズ可能な代�
 
 ### 2. 環境変数の設定（オプション）
 
-開発を容易にするため、`QT_SDK_DIR`環境変数を設定します：
+開発を容易にするため、`QT_SDK_DIR`、`MSVC2022_VCINSTALLDIR`環境変数を設定します：
 
 ```cmd
 set QT_SDK_DIR=C:\path\to\Qt\6.x.x\msvc2022_64
+set MSVC2022_VCINSTALLDIR=C:/Program Files/Microsoft Visual Studio/2022/Community/VC
 ```
 
 ### 3. 構成とビルド
