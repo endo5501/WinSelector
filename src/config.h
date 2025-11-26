@@ -40,6 +40,12 @@ namespace WinSelectorConfig
         inline int contentMargin() { return Settings::instance().tileContentMargin; }
         inline int internalSpacing() { return Settings::instance().tileInternalSpacing; }
     }
+
+    // Display Configuration
+    namespace Display
+    {
+        inline int targetDisplayIndex() { return Settings::instance().targetDisplayIndex; }
+    }
 }
 
 #endif // CONFIG_H

@@ -6,6 +6,7 @@
 #include "win32utils.h"
 #include <QDebug>
 #include <QScreen>
+#include <QGuiApplication>
 #include <algorithm>
 #include <QMap>
 #include <QMenu>
@@ -51,11 +52,11 @@ void MainWindow::setupUi()
     m_flowLayout->setRTL(true);
     setCentralWidget(m_containerWidget);
 
-    // Position on right edge
-    QScreen *screen = QGuiApplication::primaryScreen();
+    // Position on right edge of target screen
+    QScreen *screen = getTargetScreen();
     QRect screenGeom = screen->geometry();
     setGeometry(screenGeom.width() - WinSelectorConfig::MainWindow::initialWidth(),
-                0,
+                screenGeom.y(),
                 WinSelectorConfig::MainWindow::initialWidth(),
                 screenGeom.height());
 }
@@ -140,7 +141,7 @@ void MainWindow::updateTiles(const QList<WindowInfo> &windows)
 
 void MainWindow::adjustWindowGeometry()
 {
-    QScreen *screen = QGuiApplication::primaryScreen();
+    QScreen *screen = getTargetScreen();
     QRect availableGeom = screen->availableGeometry();
     int requiredWidth = m_flowLayout->totalWidthForHeight(availableGeom.height());
 
@@ -150,7 +151,7 @@ void MainWindow::adjustWindowGeometry()
         requiredWidth = WinSelectorConfig::MainWindow::minimumWidth();
     }
 
-    setGeometry(availableGeom.width() - requiredWidth,
+    setGeometry(availableGeom.x() + availableGeom.width() - requiredWidth,
                 availableGeom.y(),
                 requiredWidth,
                 availableGeom.height());
@@ -225,4 +226,19 @@ void MainWindow::toggleVisibility()
         raise();
         Win32Utils::activateWindow((HWND)winId());
     }
+}
+
+QScreen* MainWindow::getTargetScreen()
+{
+    QList<QScreen*> screens = QGuiApplication::screens();
+    int targetIndex = WinSelectorConfig::Display::targetDisplayIndex();
+    
+    // Return the target screen if the index is valid
+    if (targetIndex >= 0 && targetIndex < screens.size())
+    {
+        return screens[targetIndex];
+    }
+    
+    // Fallback to primary screen if index is out of range
+    return QGuiApplication::primaryScreen();
 }

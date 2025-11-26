@@ -30,6 +30,8 @@ Settings::Settings()
     if (!m_settings->contains("WindowTile/ContentMargin")) m_settings->setValue("WindowTile/ContentMargin", 2);
     if (!m_settings->contains("WindowTile/InternalSpacing")) m_settings->setValue("WindowTile/InternalSpacing", 5);
 
+    if (!m_settings->contains("Display/TargetDisplayIndex")) m_settings->setValue("Display/TargetDisplayIndex", 0);
+
     if (!m_settings->contains("Shortcuts/ToggleVisibility")) m_settings->setValue("Shortcuts/ToggleVisibility", "Home");
 
     m_settings->sync();
@@ -58,6 +60,9 @@ void Settings::load()
     tileIconSize = m_settings->value("WindowTile/IconSize", 16).toInt();
     tileContentMargin = m_settings->value("WindowTile/ContentMargin", 2).toInt();
     tileInternalSpacing = m_settings->value("WindowTile/InternalSpacing", 5).toInt();
+
+    // Display
+    targetDisplayIndex = m_settings->value("Display/TargetDisplayIndex", 0).toInt();
 
     // Shortcuts
     toggleVisibilityShortcut = m_settings->value("Shortcuts/ToggleVisibility", "Home").toString();

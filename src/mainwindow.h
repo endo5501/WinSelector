@@ -102,6 +102,12 @@ private:
      */
     void onTrayIconActivated(QSystemTrayIcon::ActivationReason reason);
 
+    /**
+     * @brief Get the target screen based on settings
+     * @return Pointer to the target QScreen, or primary screen if index is out of range
+     */
+    QScreen* getTargetScreen();
+
     QSystemTrayIcon *m_trayIcon;
 };
 #endif // MAINWINDOW_H

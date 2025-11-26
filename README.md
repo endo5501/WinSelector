@@ -136,6 +136,14 @@ ContentMargin=2
 # Internal spacing between icon and title (in pixels)
 InternalSpacing=5
 
+[Display]
+# Index of the display to show the panel on
+# 0 = Primary display
+# 1 = Second display
+# 2 = Third display, etc.
+# Falls back to primary display if the specified index is out of range
+TargetDisplayIndex=0
+
 [Shortcuts]
 # Shortcut key to toggle panel visibility
 # Supported keys: Home, End, Left, Right, Up, Down, PageUp, PageDown,
@@ -170,6 +178,12 @@ ToggleVisibility=F12
 Margin=1
 HSpacing=1
 VSpacing=1
+```
+
+**Display on secondary display (second monitor):**
+```ini
+[Display]
+TargetDisplayIndex=1
 ```
 
 Changes to `Settings.ini` require restarting the application to take effect.
@@ -230,7 +244,6 @@ The project supports Japanese localization through Qt's translation system. To a
 - **Performance**: Implement differential updates instead of recreating all tiles every refresh
 - **Settings UI**: Add graphical settings dialog for easier configuration
 - **Filtering**: Add ability to filter or search windows
-- **Multi-monitor**: Support for positioning on different monitors
 - **Themes**: Customizable color schemes and transparency levels
 
 ## License

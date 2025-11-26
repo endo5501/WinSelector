@@ -32,6 +32,9 @@ public:
     int tileContentMargin;
     int tileInternalSpacing;
 
+    // Display
+    int targetDisplayIndex;
+
     // Shortcuts
     QString toggleVisibilityShortcut;
     int getToggleVisibilityKeyVk();
