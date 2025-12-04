@@ -20,11 +20,7 @@ static bool isWindowRelevant(HWND hwnd)
         return false;
     }
 
-    // Skip windows with empty titles (usually not user-facing windows)
-    int titleLength = GetWindowTextLength(hwnd);
-    if (titleLength == 0)
-        return false;
-
+    // Allow windows with empty titles - we'll show process name instead
     return true;
 }
 
@@ -39,10 +35,6 @@ BOOL CALLBACK EnumWindowsProc(HWND hwnd, LPARAM lParam)
     bool titleSuccess = false;
     QString titleStr = Win32Utils::getWindowTitle(hwnd, &titleSuccess);
 
-    // Skip windows with empty titles or if title retrieval failed
-    if (titleStr.isEmpty())
-        return TRUE;
-
     // Skip Program Manager (Desktop)
     if (titleStr == "Program Manager")
         return TRUE;
@@ -52,9 +44,19 @@ BOOL CALLBACK EnumWindowsProc(HWND hwnd, LPARAM lParam)
 
     WindowInfo info;
     info.hwnd = hwnd;
-    info.title = titleStr;
     info.processId = processId;
     info.processName = Win32Utils::getProcessName(processId);
+
+    // Use process name if title is empty
+    if (titleStr.isEmpty())
+    {
+        info.title = info.processName;
+    }
+    else
+    {
+        info.title = titleStr;
+    }
+
     info.icon = Win32Utils::getWindowIcon(hwnd);
 
     list->append(info);
