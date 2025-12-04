@@ -31,6 +31,7 @@ public:
     int tileIconSize;
     int tileContentMargin;
     int tileInternalSpacing;
+    bool tileEnableShiftClickClose;
 
     // Display
     int targetDisplayIndex;

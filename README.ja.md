@@ -82,6 +82,7 @@ cmake --build ./build/Release_Windows --target install
 
 - **Homeキー**: パネルの表示/非表示を切り替え
 - **左クリック**: ウィンドウタイルをクリックして、そのウィンドウをアクティブ化し前面に表示
+- **Shift+左クリック**: ウィンドウタイルをShiftキーを押しながらクリックして、ウィンドウを閉じる（設定で有効化されている場合）
 - **右クリック**: ウィンドウタイルを右クリックしてコンテキストメニューを表示し、ウィンドウを閉じる
 - パネルは自動的に更新され、新しいウィンドウを表示し、閉じられたウィンドウを削除します
 
@@ -137,6 +138,11 @@ ContentMargin=2
 # アイコンとタイトル間の内部間隔(ピクセル)
 InternalSpacing=5
 
+# Shift+クリックでウィンドウを閉じる機能を有効化 (true/false)
+# 有効化すると、タイルをShift+左クリックすることでウィンドウを閉じることができます
+# デフォルト: false
+EnableShiftClickClose=false
+
 [Display]
 # パネルを表示するディスプレイのインデックス
 # 0 = プライマリディスプレイ
@@ -185,6 +191,12 @@ VSpacing=1
 ```ini
 [Display]
 TargetDisplayIndex=1
+```
+
+**Shift+クリックでウィンドウを閉じる機能を有効化する:**
+```ini
+[WindowTile]
+EnableShiftClickClose=true
 ```
 
 `Settings.ini`の変更を有効にするには、アプリケーションの再起動が必要です。

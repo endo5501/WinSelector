@@ -91,11 +91,24 @@ void WindowTile::setActive(bool active)
     }
 }
 
+void WindowTile::setEnableShiftClickClose(bool enabled)
+{
+    m_enableShiftClickClose = enabled;
+}
+
 void WindowTile::mousePressEvent(QMouseEvent *event)
 {
     if (event->button() == Qt::LeftButton)
     {
-        emit activated(m_info.hwnd);
+        // Check if Shift+Click close mode is enabled
+        if (m_enableShiftClickClose && (event->modifiers() & Qt::ShiftModifier))
+        {
+            emit closed(m_info.hwnd);
+        }
+        else
+        {
+            emit activated(m_info.hwnd);
+        }
     }
     else if (event->button() == Qt::RightButton)
     {

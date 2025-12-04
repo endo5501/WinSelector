@@ -125,7 +125,9 @@ void MainWindow::updateTiles(const QList<WindowInfo> &windows)
             connect(tile, &WindowTile::activated, this, &MainWindow::activateWindow);
             connect(tile, &WindowTile::closed, this, &MainWindow::closeWindow);
         }
-        
+
+        // Apply shift+click close setting
+        tile->setEnableShiftClickClose(WinSelectorConfig::WindowTile::enableShiftClickClose());
         tile->setActive(info.hwnd == foregroundHwnd);
         m_flowLayout->addWidget(tile);
     }

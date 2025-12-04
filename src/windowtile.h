@@ -46,6 +46,12 @@ public:
      */
     QSize sizeHint() const override;
 
+    /**
+     * @brief Enable or disable shift+click to close window
+     * @param enabled true to enable, false to disable
+     */
+    void setEnableShiftClickClose(bool enabled);
+
     // Configuration is now handled by Settings class
 
 signals:
@@ -71,6 +77,7 @@ protected:
 private:
     WindowInfo m_info;
     bool m_isActive = false;
+    bool m_enableShiftClickClose = false;
     QLabel *m_iconLabel;
     QLabel *m_titleLabel;
 

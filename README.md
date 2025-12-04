@@ -82,6 +82,7 @@ Simply run `WinSelector.exe`. The panel will appear on the right edge of your sc
 
 - **Home Key**: Toggle the visibility of the panel
 - **Left-click** a window tile to activate and bring that window to the foreground
+- **Shift+Left-click** a window tile to close the window (if enabled in settings)
 - **Right-click** a window tile to show the context menu and close the window
 - The panel automatically updates to show new windows and remove closed ones
 
@@ -137,6 +138,11 @@ ContentMargin=2
 # Internal spacing between icon and title (in pixels)
 InternalSpacing=5
 
+# Enable Shift+Click to close window (true/false)
+# When enabled, Shift+Left-click on a tile will close the window
+# Default: false
+EnableShiftClickClose=false
+
 [Display]
 # Index of the display to show the panel on
 # 0 = Primary display
@@ -185,6 +191,12 @@ VSpacing=1
 ```ini
 [Display]
 TargetDisplayIndex=1
+```
+
+**Enable Shift+Click to close windows:**
+```ini
+[WindowTile]
+EnableShiftClickClose=true
 ```
 
 Changes to `Settings.ini` require restarting the application to take effect.

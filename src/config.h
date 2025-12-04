@@ -39,6 +39,7 @@ namespace WinSelectorConfig
         inline int iconSize() { return Settings::instance().tileIconSize; }
         inline int contentMargin() { return Settings::instance().tileContentMargin; }
         inline int internalSpacing() { return Settings::instance().tileInternalSpacing; }
+        inline bool enableShiftClickClose() { return Settings::instance().tileEnableShiftClickClose; }
     }
 
     // Display Configuration

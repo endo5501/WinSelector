@@ -29,6 +29,7 @@ Settings::Settings()
     if (!m_settings->contains("WindowTile/IconSize")) m_settings->setValue("WindowTile/IconSize", 16);
     if (!m_settings->contains("WindowTile/ContentMargin")) m_settings->setValue("WindowTile/ContentMargin", 2);
     if (!m_settings->contains("WindowTile/InternalSpacing")) m_settings->setValue("WindowTile/InternalSpacing", 5);
+    if (!m_settings->contains("WindowTile/EnableShiftClickClose")) m_settings->setValue("WindowTile/EnableShiftClickClose", false);
 
     if (!m_settings->contains("Display/TargetDisplayIndex")) m_settings->setValue("Display/TargetDisplayIndex", 0);
 
@@ -60,6 +61,7 @@ void Settings::load()
     tileIconSize = m_settings->value("WindowTile/IconSize", 16).toInt();
     tileContentMargin = m_settings->value("WindowTile/ContentMargin", 2).toInt();
     tileInternalSpacing = m_settings->value("WindowTile/InternalSpacing", 5).toInt();
+    tileEnableShiftClickClose = m_settings->value("WindowTile/EnableShiftClickClose", false).toBool();
 
     // Display
     targetDisplayIndex = m_settings->value("Display/TargetDisplayIndex", 0).toInt();
