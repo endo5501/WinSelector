@@ -124,6 +124,7 @@ void MainWindow::updateTiles(const QList<WindowInfo> &windows)
             tile = new WindowTile(info, this);
             connect(tile, &WindowTile::activated, this, &MainWindow::activateWindow);
             connect(tile, &WindowTile::closed, this, &MainWindow::closeWindow);
+            connect(tile, &WindowTile::launchRequested, this, &MainWindow::launchProcess);
         }
 
         // Apply shift+click close setting
@@ -175,6 +176,18 @@ void MainWindow::closeWindow(HWND hwnd)
     // Refresh after a short delay
     QTimer::singleShot(WinSelectorConfig::MainWindow::closeRefreshDelayMs(),
                        this, &MainWindow::refreshWindows);
+}
+
+void MainWindow::launchProcess(const QString &processPath)
+{
+    if (Win32Utils::launchProcess(processPath))
+    {
+        qDebug() << "Successfully launched:" << processPath;
+    }
+    else
+    {
+        qWarning() << "Failed to launch:" << processPath;
+    }
 }
 
 void MainWindow::createTrayIcon()

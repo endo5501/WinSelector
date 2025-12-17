@@ -72,6 +72,12 @@ private:
      */
     void closeWindow(HWND hwnd);
 
+    /**
+     * @brief Launch a new instance of an application
+     * @param processPath Full path to the executable to launch
+     */
+    void launchProcess(const QString &processPath);
+
     // Helper methods for refreshWindows()
 
     /**

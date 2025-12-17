@@ -5,6 +5,7 @@
 #include <QImage>
 #include <QPixmap>
 #include <QMap>
+#include <QFile>
 #include <vector>
 
 // Static icon cache to avoid repeated icon fetching
@@ -72,6 +73,51 @@ QString Win32Utils::getProcessName(DWORD processId)
     }
 
     return processName;
+}
+
+QString Win32Utils::getProcessPath(DWORD processId)
+{
+    QString processPath = "";
+
+    HANDLE hProcess = OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ,
+                                  FALSE, processId);
+    if (!hProcess)
+    {
+        DWORD error = GetLastError();
+        // Don't log for access denied errors as they're common for system processes
+        if (error != ERROR_ACCESS_DENIED)
+        {
+            logWin32Error("OpenProcess", error);
+        }
+        return processPath;
+    }
+
+    HMODULE hMod;
+    DWORD cbNeeded;
+    if (EnumProcessModules(hProcess, &hMod, sizeof(hMod), &cbNeeded))
+    {
+        WCHAR szProcessPath[MAX_PATH] = {0};
+        if (GetModuleFileNameExW(hProcess, hMod, szProcessPath,
+                                 sizeof(szProcessPath) / sizeof(WCHAR)))
+        {
+            processPath = QString::fromWCharArray(szProcessPath);
+        }
+        else
+        {
+            logWin32Error("GetModuleFileNameExW");
+        }
+    }
+    else
+    {
+        logWin32Error("EnumProcessModules");
+    }
+
+    if (!CloseHandle(hProcess))
+    {
+        logWin32Error("CloseHandle");
+    }
+
+    return processPath;
 }
 
 QIcon Win32Utils::getWindowIcon(HWND hwnd)
@@ -222,6 +268,37 @@ bool Win32Utils::closeWindow(HWND hwnd)
     if (!PostMessage(hwnd, WM_CLOSE, 0, 0))
     {
         logWin32Error("PostMessage(WM_CLOSE)");
+        return false;
+    }
+
+    return true;
+}
+
+bool Win32Utils::launchProcess(const QString &processPath)
+{
+    if (processPath.isEmpty())
+    {
+        qWarning() << "launchProcess: Empty process path";
+        return false;
+    }
+
+    // Check if the executable file exists
+    if (!QFile::exists(processPath))
+    {
+        qWarning() << "launchProcess: File does not exist:" << processPath;
+        return false;
+    }
+
+    SHELLEXECUTEINFOW shellExecInfo = {0};
+    shellExecInfo.cbSize = sizeof(SHELLEXECUTEINFOW);
+    shellExecInfo.fMask = SEE_MASK_DEFAULT;
+    shellExecInfo.lpVerb = L"open";
+    shellExecInfo.lpFile = reinterpret_cast<LPCWSTR>(processPath.utf16());
+    shellExecInfo.nShow = SW_SHOWNORMAL;
+
+    if (!ShellExecuteExW(&shellExecInfo))
+    {
+        logWin32Error("ShellExecuteExW");
         return false;
     }
 

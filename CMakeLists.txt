@@ -48,7 +48,7 @@ qt_create_translation(QM_FILES ${CMAKE_SOURCE_DIR} ${TS_FILES})
 target_link_libraries(WinSelector PRIVATE Qt${QT_VERSION_MAJOR}::Widgets)
 
 if(WIN32)
-    target_link_libraries(WinSelector PRIVATE user32 gdi32 psapi)
+    target_link_libraries(WinSelector PRIVATE user32 gdi32 psapi shell32)
 endif()
 
 set_target_properties(WinSelector PROPERTIES

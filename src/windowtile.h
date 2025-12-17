@@ -67,6 +67,12 @@ signals:
      */
     void closed(HWND hwnd);
 
+    /**
+     * @brief Signal emitted when user requests to launch a new instance
+     * @param processPath Full path to the executable to launch
+     */
+    void launchRequested(const QString &processPath);
+
 protected:
     /**
      * @brief Handle mouse press events

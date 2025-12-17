@@ -22,6 +22,13 @@ public:
     static QString getProcessName(DWORD processId);
 
     /**
+     * @brief Get the full executable path from a process ID
+     * @param processId The process ID to query
+     * @return Full executable path, or empty QString if the query fails
+     */
+    static QString getProcessPath(DWORD processId);
+
+    /**
      * @brief Get the icon for a window
      * @param hwnd Window handle
      * @return QIcon representing the window's icon, or empty QIcon if none found
@@ -49,6 +56,13 @@ public:
      * @return true if successful, false otherwise
      */
     static bool closeWindow(HWND hwnd);
+
+    /**
+     * @brief Launch a new process instance
+     * @param processPath Full path to the executable to launch
+     * @return true if successful, false otherwise
+     */
+    static bool launchProcess(const QString &processPath);
 
     /**
      * @brief Check if a window handle is valid

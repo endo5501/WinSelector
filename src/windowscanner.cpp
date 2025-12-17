@@ -46,6 +46,7 @@ BOOL CALLBACK EnumWindowsProc(HWND hwnd, LPARAM lParam)
     info.hwnd = hwnd;
     info.processId = processId;
     info.processName = Win32Utils::getProcessName(processId);
+    info.processPath = Win32Utils::getProcessPath(processId);
 
     // Use process name if title is empty
     if (titleStr.isEmpty())

@@ -16,6 +16,7 @@ struct WindowInfo
     QIcon icon;
     QString processName;
     DWORD processId;
+    QString processPath;
 
     bool operator==(const WindowInfo &other) const
     {
