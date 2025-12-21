@@ -30,12 +30,9 @@ bool Win32Utils::isValidWindow(HWND hwnd)
     return hwnd != nullptr && IsWindow(hwnd);
 }
 
-QString Win32Utils::getProcessName(DWORD processId)
+bool Win32Utils::openProcessAndGetModule(DWORD processId, HANDLE &hProcess, HMODULE &hModule)
 {
-    QString processName = "Unknown";
-
-    HANDLE hProcess = OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ,
-                                  FALSE, processId);
+    hProcess = OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ, FALSE, processId);
     if (!hProcess)
     {
         DWORD error = GetLastError();
@@ -44,27 +41,40 @@ QString Win32Utils::getProcessName(DWORD processId)
         {
             logWin32Error("OpenProcess", error);
         }
-        return processName;
+        return false;
     }
 
-    HMODULE hMod;
     DWORD cbNeeded;
-    if (EnumProcessModules(hProcess, &hMod, sizeof(hMod), &cbNeeded))
+    if (!EnumProcessModules(hProcess, &hModule, sizeof(hModule), &cbNeeded))
     {
-        WCHAR szProcessName[MAX_PATH] = {0};
-        if (GetModuleBaseNameW(hProcess, hMod, szProcessName,
-                               sizeof(szProcessName) / sizeof(WCHAR)))
-        {
-            processName = QString::fromWCharArray(szProcessName);
-        }
-        else
-        {
-            logWin32Error("GetModuleBaseNameW");
-        }
+        logWin32Error("EnumProcessModules");
+        CloseHandle(hProcess);
+        return false;
+    }
+
+    return true;
+}
+
+QString Win32Utils::getProcessName(DWORD processId)
+{
+    HANDLE hProcess;
+    HMODULE hModule;
+
+    if (!openProcessAndGetModule(processId, hProcess, hModule))
+    {
+        return "Unknown";
+    }
+
+    QString processName = "Unknown";
+    WCHAR szProcessName[MAX_PATH] = {0};
+    if (GetModuleBaseNameW(hProcess, hModule, szProcessName,
+                           sizeof(szProcessName) / sizeof(WCHAR)))
+    {
+        processName = QString::fromWCharArray(szProcessName);
     }
     else
     {
-        logWin32Error("EnumProcessModules");
+        logWin32Error("GetModuleBaseNameW");
     }
 
     if (!CloseHandle(hProcess))
@@ -77,39 +87,24 @@ QString Win32Utils::getProcessName(DWORD processId)
 
 QString Win32Utils::getProcessPath(DWORD processId)
 {
-    QString processPath = "";
+    HANDLE hProcess;
+    HMODULE hModule;
 
-    HANDLE hProcess = OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ,
-                                  FALSE, processId);
-    if (!hProcess)
+    if (!openProcessAndGetModule(processId, hProcess, hModule))
     {
-        DWORD error = GetLastError();
-        // Don't log for access denied errors as they're common for system processes
-        if (error != ERROR_ACCESS_DENIED)
-        {
-            logWin32Error("OpenProcess", error);
-        }
-        return processPath;
+        return QString();
     }
 
-    HMODULE hMod;
-    DWORD cbNeeded;
-    if (EnumProcessModules(hProcess, &hMod, sizeof(hMod), &cbNeeded))
+    QString processPath;
+    WCHAR szProcessPath[MAX_PATH] = {0};
+    if (GetModuleFileNameExW(hProcess, hModule, szProcessPath,
+                             sizeof(szProcessPath) / sizeof(WCHAR)))
     {
-        WCHAR szProcessPath[MAX_PATH] = {0};
-        if (GetModuleFileNameExW(hProcess, hMod, szProcessPath,
-                                 sizeof(szProcessPath) / sizeof(WCHAR)))
-        {
-            processPath = QString::fromWCharArray(szProcessPath);
-        }
-        else
-        {
-            logWin32Error("GetModuleFileNameExW");
-        }
+        processPath = QString::fromWCharArray(szProcessPath);
     }
     else
     {
-        logWin32Error("EnumProcessModules");
+        logWin32Error("GetModuleFileNameExW");
     }
 
     if (!CloseHandle(hProcess))
@@ -118,6 +113,41 @@ QString Win32Utils::getProcessPath(DWORD processId)
     }
 
     return processPath;
+}
+
+HICON Win32Utils::tryGetIconViaMessage(HWND hwnd, WPARAM iconType)
+{
+    DWORD_PTR result = 0;
+    // Use SendMessageTimeout to avoid freezing when the target window is unresponsive
+    // SMTO_ABORTIFHUNG: Returns immediately if the target window is hung
+    // SMTO_BLOCK: Prevents the calling thread from processing other requests while waiting
+    if (SendMessageTimeout(hwnd, WM_GETICON, iconType, 0,
+                          SMTO_ABORTIFHUNG | SMTO_BLOCK, 200, &result))
+    {
+        return (HICON)result;
+    }
+    return nullptr;
+}
+
+HICON Win32Utils::tryGetIconViaClassLongPtr(HWND hwnd, int index)
+{
+    HICON hIcon = (HICON)GetClassLongPtr(hwnd, index);
+    if (!hIcon && GetLastError() != 0)
+    {
+        QString indexName = (index == GCLP_HICON) ? "GCLP_HICON" : "GCLP_HICONSM";
+        logWin32Error("GetClassLongPtr(" + indexName + ")");
+    }
+    return hIcon;
+}
+
+QIcon Win32Utils::convertHIconToQIcon(HICON hIcon)
+{
+    if (!hIcon)
+    {
+        return QIcon();
+    }
+    QPixmap pixmap = QPixmap::fromImage(QImage::fromHICON(hIcon));
+    return QIcon(pixmap);
 }
 
 QIcon Win32Utils::getWindowIcon(HWND hwnd)
@@ -134,56 +164,22 @@ QIcon Win32Utils::getWindowIcon(HWND hwnd)
         return s_iconCache.value(hwnd);
     }
 
-    HICON hIcon = nullptr;
-    DWORD_PTR result = 0;
-    
-    // Try WM_GETICON (Big icon first)
-    // Use SendMessageTimeout to avoid freezing when the target window is unresponsive
-    // SMTO_ABORTIFHUNG: Returns immediately if the target window is hung
-    // SMTO_BLOCK: Prevents the calling thread from processing other requests while waiting
-    if (SendMessageTimeout(hwnd, WM_GETICON, ICON_BIG, 0, 
-                          SMTO_ABORTIFHUNG | SMTO_BLOCK, 200, &result))
-    {
-        hIcon = (HICON)result;
-    }
-
-    // Try WM_GETICON (Small icon)
+    // Try different methods to get the icon
+    HICON hIcon = tryGetIconViaMessage(hwnd, ICON_BIG);
     if (!hIcon)
     {
-        result = 0;
-        if (SendMessageTimeout(hwnd, WM_GETICON, ICON_SMALL, 0,
-                              SMTO_ABORTIFHUNG | SMTO_BLOCK, 200, &result))
-        {
-            hIcon = (HICON)result;
-        }
+        hIcon = tryGetIconViaMessage(hwnd, ICON_SMALL);
     }
-
-    // Try GetClassLongPtr (HICON)
     if (!hIcon)
     {
-        hIcon = (HICON)GetClassLongPtr(hwnd, GCLP_HICON);
-        if (!hIcon && GetLastError() != 0)
-        {
-            logWin32Error("GetClassLongPtr(GCLP_HICON)");
-        }
+        hIcon = tryGetIconViaClassLongPtr(hwnd, GCLP_HICON);
     }
-
-    // Try GetClassLongPtr (HICONSM - small icon)
     if (!hIcon)
     {
-        hIcon = (HICON)GetClassLongPtr(hwnd, GCLP_HICONSM);
-        if (!hIcon && GetLastError() != 0)
-        {
-            logWin32Error("GetClassLongPtr(GCLP_HICONSM)");
-        }
+        hIcon = tryGetIconViaClassLongPtr(hwnd, GCLP_HICONSM);
     }
 
-    QIcon icon;
-    if (hIcon)
-    {
-        QPixmap pixmap = QPixmap::fromImage(QImage::fromHICON(hIcon));
-        icon = QIcon(pixmap);
-    }
+    QIcon icon = convertHIconToQIcon(hIcon);
 
     // Cache the result (even if empty)
     s_iconCache.insert(hwnd, icon);

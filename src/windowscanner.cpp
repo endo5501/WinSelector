@@ -6,16 +6,14 @@ static bool isWindowRelevant(HWND hwnd)
 {
     // Only consider visible windows
     if (!IsWindowVisible(hwnd))
+    {
         return false;
-
-    // Check window extended styles
-    LONG_PTR exStyle = GetWindowLongPtr(hwnd, GWL_EXSTYLE);
+    }
 
     // Skip tool windows (like tooltips) unless explicitly marked as app windows
     // Tool windows have WS_EX_TOOLWINDOW flag but not WS_EX_APPWINDOW
-    bool isToolWindowWithoutAppFlag = (exStyle & WS_EX_TOOLWINDOW) &&
-                                       !(exStyle & WS_EX_APPWINDOW);
-    if (isToolWindowWithoutAppFlag)
+    LONG_PTR exStyle = GetWindowLongPtr(hwnd, GWL_EXSTYLE);
+    if ((exStyle & WS_EX_TOOLWINDOW) && !(exStyle & WS_EX_APPWINDOW))
     {
         return false;
     }

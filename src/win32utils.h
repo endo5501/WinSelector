@@ -114,6 +114,38 @@ private:
      * @param errorCode The error code to log
      */
     static void logWin32Error(const QString &functionName, DWORD errorCode);
+
+    /**
+     * @brief Helper function to open process and get module handle
+     * @param processId The process ID to query
+     * @param hProcess Output parameter for process handle (must be closed by caller)
+     * @param hModule Output parameter for module handle
+     * @return true if successful, false otherwise
+     */
+    static bool openProcessAndGetModule(DWORD processId, HANDLE &hProcess, HMODULE &hModule);
+
+    /**
+     * @brief Try to get window icon via WM_GETICON message
+     * @param hwnd Window handle
+     * @param iconType ICON_BIG or ICON_SMALL
+     * @return Icon handle, or nullptr if not found
+     */
+    static HICON tryGetIconViaMessage(HWND hwnd, WPARAM iconType);
+
+    /**
+     * @brief Try to get window icon via GetClassLongPtr
+     * @param hwnd Window handle
+     * @param index GCLP_HICON or GCLP_HICONSM
+     * @return Icon handle, or nullptr if not found
+     */
+    static HICON tryGetIconViaClassLongPtr(HWND hwnd, int index);
+
+    /**
+     * @brief Convert HICON to QIcon
+     * @param hIcon Windows icon handle
+     * @return QIcon object
+     */
+    static QIcon convertHIconToQIcon(HICON hIcon);
 };
 
 #endif // WIN32UTILS_H

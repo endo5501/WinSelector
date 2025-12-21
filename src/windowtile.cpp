@@ -96,6 +96,29 @@ void WindowTile::setEnableShiftClickClose(bool enabled)
     m_enableShiftClickClose = enabled;
 }
 
+void WindowTile::showContextMenu(const QPoint &globalPos)
+{
+    QMenu contextMenu(this);
+
+    // "Launch" menu item
+    QAction *launchAction = contextMenu.addAction("起動");
+    if (m_info.processPath.isEmpty())
+    {
+        launchAction->setEnabled(false);  // Disable if path is not available
+    }
+    connect(launchAction, &QAction::triggered, this,
+            [this]()
+            { emit launchRequested(m_info.processPath); });
+
+    // "Close Window" menu item
+    QAction *closeAction = contextMenu.addAction("ウィンドウを閉じる");
+    connect(closeAction, &QAction::triggered, this,
+            [this]()
+            { emit closed(m_info.hwnd); });
+
+    contextMenu.exec(globalPos);
+}
+
 void WindowTile::mousePressEvent(QMouseEvent *event)
 {
     if (event->button() == Qt::LeftButton)
@@ -112,24 +135,6 @@ void WindowTile::mousePressEvent(QMouseEvent *event)
     }
     else if (event->button() == Qt::RightButton)
     {
-        QMenu contextMenu(this);
-
-        // "Launch" menu item
-        QAction *launchAction = contextMenu.addAction("起動");
-        if (m_info.processPath.isEmpty())
-        {
-            launchAction->setEnabled(false);  // Disable if path is not available
-        }
-        connect(launchAction, &QAction::triggered, this,
-                [this]()
-                { emit launchRequested(m_info.processPath); });
-
-        // "Close Window" menu item
-        QAction *closeAction =
-            contextMenu.addAction("ウィンドウを閉じる"); // "Close Window"
-        connect(closeAction, &QAction::triggered, this,
-                [this]()
-                { emit closed(m_info.hwnd); });
-        contextMenu.exec(event->globalPosition().toPoint());
+        showContextMenu(event->globalPosition().toPoint());
     }
 }

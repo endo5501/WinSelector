@@ -115,86 +115,80 @@ QSize FlowLayout::minimumSize() const
     return size;
 }
 
+QSize FlowLayout::getItemSize(QLayoutItem *item, bool testOnly) const
+{
+    // When testOnly=true (calculating width), use widget's sizeHint directly
+    // because QWidgetItem::sizeHint() returns (0,0) for hidden widgets
+    if (testOnly && item->widget())
+    {
+        return item->widget()->sizeHint();
+    }
+    return item->sizeHint();
+}
+
+bool FlowLayout::shouldWrapToNextColumn(int currentY, int itemHeight, const QRect &effectiveRect) const
+{
+    // Wrap if we're not at the top and adding this item would exceed the bottom
+    return effectiveRect.height() > 0 &&
+           currentY + itemHeight > effectiveRect.bottom() &&
+           currentY > effectiveRect.y();
+}
+
+void FlowLayout::setItemGeometry(QLayoutItem *item, int x, int y, const QSize &size) const
+{
+    if (m_isRTL)
+    {
+        // For RTL, x represents the right edge, so subtract width
+        item->setGeometry(QRect(QPoint(x - size.width(), y), size));
+    }
+    else
+    {
+        // For LTR, x represents the left edge
+        item->setGeometry(QRect(QPoint(x, y), size));
+    }
+}
+
 int FlowLayout::doLayout(const QRect &rect, bool testOnly) const
 {
     int left, top, right, bottom;
     getContentsMargins(&left, &top, &right, &bottom);
     QRect effectiveRect = rect.adjusted(+left, +top, -right, -bottom);
+
     int x = m_isRTL ? effectiveRect.right() + 1 : effectiveRect.x();
     int y = effectiveRect.y();
-
     int columnWidth = 0;
-    int maxColumnHeight = 0;
 
-    int index = 0;
     for (QLayoutItem *item : m_itemList)
     {
-        QSize size;
+        QSize size = getItemSize(item, testOnly);
 
-        // When testOnly=true (calculating width), use widget's sizeHint directly
-        // because QWidgetItem::sizeHint() returns (0,0) for hidden widgets
-        if (testOnly && item->widget())
+        // Check if we need to wrap to the next column
+        if (shouldWrapToNextColumn(y, size.height(), effectiveRect))
         {
-            size = item->widget()->sizeHint();
-        }
-        else
-        {
-            size = item->sizeHint();
-        }
-
-        // If we are not at the top, and adding this item would exceed bottom...
-        bool wrap = false;
-        if (effectiveRect.height() > 0 &&
-            y + size.height() > effectiveRect.bottom() && y > effectiveRect.y())
-        {
-            wrap = true;
-        }
-
-        if (wrap)
-        {
-            if (m_isRTL)
-            {
-                x -= columnWidth + horizontalSpacing();
-            }
-            else
-            {
-                x += columnWidth + horizontalSpacing();
-            }
+            // Move to next column
+            x = m_isRTL ? x - columnWidth - horizontalSpacing()
+                        : x + columnWidth + horizontalSpacing();
             y = effectiveRect.y();
             columnWidth = 0;
         }
 
+        // Position the item if not in test mode
         if (!testOnly)
         {
-            if (m_isRTL)
-            {
-                // Align right
-                item->setGeometry(QRect(QPoint(x - size.width(), y), size));
-            }
-            else
-            {
-                item->setGeometry(QRect(QPoint(x, y), size));
-            }
+            setItemGeometry(item, x, y, size);
         }
 
+        // Update tracking variables
         columnWidth = qMax(columnWidth, size.width());
         y += size.height() + verticalSpacing();
-        maxColumnHeight = qMax(maxColumnHeight, y - effectiveRect.y());
-        index++;
     }
 
-    // Return the total width used
-    // Note: this return value is often used for sizeHint, but sizeHint usually
-    // calls with unconstrained rect? If rect is unconstrained (height large), we
-    // get 1 column.
+    // Calculate and return the total width used
     if (m_isRTL)
     {
         return (effectiveRect.right() + 1) - (x - columnWidth) + right + left;
     }
-    else
-    {
-        return x + columnWidth + right + left - rect.x();
-    }
+    return x + columnWidth + right + left - rect.x();
 }
 
 int FlowLayout::smartSpacing(QStyle::PixelMetric pm) const

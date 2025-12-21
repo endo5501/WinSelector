@@ -93,6 +93,12 @@ private:
      * @brief Setup the style of the tile
      */
     void setupStyle();
+
+    /**
+     * @brief Show context menu at the given position
+     * @param globalPos Global position where menu should appear
+     */
+    void showContextMenu(const QPoint &globalPos);
 };
 
 #endif // WINDOWTILE_H

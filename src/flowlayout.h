@@ -133,6 +133,32 @@ private:
      */
     int smartSpacing(QStyle::PixelMetric pm) const;
 
+    /**
+     * @brief Get the size of a layout item (handles testOnly mode)
+     * @param item The layout item to measure
+     * @param testOnly Whether we're in test mode
+     * @return Size of the item
+     */
+    QSize getItemSize(QLayoutItem *item, bool testOnly) const;
+
+    /**
+     * @brief Check if we should wrap to the next column
+     * @param currentY Current Y position
+     * @param itemHeight Height of the item to add
+     * @param effectiveRect The effective layout rectangle
+     * @return true if we should wrap to next column
+     */
+    bool shouldWrapToNextColumn(int currentY, int itemHeight, const QRect &effectiveRect) const;
+
+    /**
+     * @brief Set the geometry of an item (handles RTL/LTR)
+     * @param item The item to position
+     * @param x X coordinate (left edge for LTR, right edge for RTL)
+     * @param y Y coordinate
+     * @param size Size of the item
+     */
+    void setItemGeometry(QLayoutItem *item, int x, int y, const QSize &size) const;
+
     QList<QLayoutItem *> m_itemList;
     int m_hSpace;
     int m_vSpace;
