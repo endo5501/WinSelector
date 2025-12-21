@@ -55,10 +55,17 @@ void MainWindow::setupUi()
     // Position on right edge of target screen
     QScreen *screen = getTargetScreen();
     QRect screenGeom = screen->geometry();
+
+    // Apply offset settings
+    int topOffset = WinSelectorConfig::MainWindow::topOffset();
+    int bottomOffset = WinSelectorConfig::MainWindow::bottomOffset();
+    int adjustedY = screenGeom.y() + topOffset;
+    int adjustedHeight = screenGeom.height() - topOffset - bottomOffset;
+
     setGeometry(screenGeom.width() - WinSelectorConfig::MainWindow::initialWidth(),
-                screenGeom.y(),
+                adjustedY,
                 WinSelectorConfig::MainWindow::initialWidth(),
-                screenGeom.height());
+                adjustedHeight);
 }
 
 void MainWindow::refreshWindows()
@@ -146,7 +153,14 @@ void MainWindow::adjustWindowGeometry()
 {
     QScreen *screen = getTargetScreen();
     QRect availableGeom = screen->availableGeometry();
-    int requiredWidth = m_flowLayout->totalWidthForHeight(availableGeom.height());
+
+    // Apply offset settings
+    int topOffset = WinSelectorConfig::MainWindow::topOffset();
+    int bottomOffset = WinSelectorConfig::MainWindow::bottomOffset();
+    int adjustedY = availableGeom.y() + topOffset;
+    int adjustedHeight = availableGeom.height() - topOffset - bottomOffset;
+
+    int requiredWidth = m_flowLayout->totalWidthForHeight(adjustedHeight);
 
     // Ensure minimum width to avoid tiny window when empty
     if (requiredWidth < WinSelectorConfig::MainWindow::minimumWidth())
@@ -155,9 +169,9 @@ void MainWindow::adjustWindowGeometry()
     }
 
     setGeometry(availableGeom.x() + availableGeom.width() - requiredWidth,
-                availableGeom.y(),
+                adjustedY,
                 requiredWidth,
-                availableGeom.height());
+                adjustedHeight);
 
     // Force layout update even if size didn't change
     m_flowLayout->setGeometry(m_containerWidget->rect());

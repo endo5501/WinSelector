@@ -16,6 +16,8 @@ public:
     int mainWindowCloseRefreshDelayMs;
     int mainWindowInitialWidth;
     int mainWindowMinimumWidth;
+    int mainWindowTopOffset;
+    int mainWindowBottomOffset;
 
     // Layout
     int layoutMargin;

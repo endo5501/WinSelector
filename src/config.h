@@ -15,6 +15,8 @@ namespace WinSelectorConfig
         inline int closeRefreshDelayMs() { return Settings::instance().mainWindowCloseRefreshDelayMs; }
         inline int initialWidth() { return Settings::instance().mainWindowInitialWidth; }
         inline int minimumWidth() { return Settings::instance().mainWindowMinimumWidth; }
+        inline int topOffset() { return Settings::instance().mainWindowTopOffset; }
+        inline int bottomOffset() { return Settings::instance().mainWindowBottomOffset; }
     }
 
     // Layout Configuration
