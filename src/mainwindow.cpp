@@ -24,6 +24,10 @@ MainWindow::MainWindow(QWidget *parent)
     connect(m_refreshTimer, &QTimer::timeout, this, &MainWindow::refreshWindows);
     m_refreshTimer->start(WinSelectorConfig::MainWindow::refreshIntervalMs());
 
+    m_iconRefreshTimer = new QTimer(this);
+    connect(m_iconRefreshTimer, &QTimer::timeout, this, []() { Win32Utils::clearIconCache(); });
+    m_iconRefreshTimer->start(WinSelectorConfig::MainWindow::iconRefreshIntervalMs());
+
     refreshWindows();
 
     // Register global hotkey (Home key)

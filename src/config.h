@@ -17,6 +17,7 @@ namespace WinSelectorConfig
         inline int minimumWidth() { return Settings::instance().mainWindowMinimumWidth; }
         inline int topOffset() { return Settings::instance().mainWindowTopOffset; }
         inline int bottomOffset() { return Settings::instance().mainWindowBottomOffset; }
+        inline int iconRefreshIntervalMs() { return Settings::instance().mainWindowIconRefreshIntervalMs; }
     }
 
     // Layout Configuration

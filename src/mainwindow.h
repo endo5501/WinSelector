@@ -46,6 +46,7 @@ private:
     Ui::MainWindow *ui;
     FlowLayout *m_flowLayout;
     QTimer *m_refreshTimer;
+    QTimer *m_iconRefreshTimer;
     QWidget *m_containerWidget;
 
     void setupUi();

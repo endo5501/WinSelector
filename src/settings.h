@@ -18,6 +18,7 @@ public:
     int mainWindowMinimumWidth;
     int mainWindowTopOffset;
     int mainWindowBottomOffset;
+    int mainWindowIconRefreshIntervalMs;
 
     // Layout
     int layoutMargin;

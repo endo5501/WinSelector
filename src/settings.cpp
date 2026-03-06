@@ -19,6 +19,7 @@ Settings::Settings()
     if (!m_settings->contains("MainWindow/MinimumWidth")) m_settings->setValue("MainWindow/MinimumWidth", 300);
     if (!m_settings->contains("MainWindow/TopOffset")) m_settings->setValue("MainWindow/TopOffset", 0);
     if (!m_settings->contains("MainWindow/BottomOffset")) m_settings->setValue("MainWindow/BottomOffset", 0);
+    if (!m_settings->contains("MainWindow/IconRefreshIntervalMs")) m_settings->setValue("MainWindow/IconRefreshIntervalMs", 60000);
 
     if (!m_settings->contains("Layout/Margin")) m_settings->setValue("Layout/Margin", 2);
     if (!m_settings->contains("Layout/HSpacing")) m_settings->setValue("Layout/HSpacing", 2);
@@ -50,6 +51,7 @@ void Settings::load()
     mainWindowMinimumWidth = m_settings->value("MainWindow/MinimumWidth", 300).toInt();
     mainWindowTopOffset = m_settings->value("MainWindow/TopOffset", 0).toInt();
     mainWindowBottomOffset = m_settings->value("MainWindow/BottomOffset", 0).toInt();
+    mainWindowIconRefreshIntervalMs = m_settings->value("MainWindow/IconRefreshIntervalMs", 60000).toInt();
 
     // Layout
     layoutMargin = m_settings->value("Layout/Margin", 2).toInt();
