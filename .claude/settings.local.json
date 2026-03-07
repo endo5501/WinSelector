@@ -4,7 +4,11 @@
       "Bash(nul)",
       "Bash(findstr:*)",
       "Bash(powershell -Command \"Get-Content ''D:\\Programs\\Qt\\WinSelector\\debug.log'' | Select-Object -Last 100\")",
-      "Skill(code-refactoring)"
+      "Skill(code-refactoring)",
+      "Bash(openspec new:*)",
+      "Bash(openspec status:*)",
+      "Bash(openspec instructions:*)",
+      "Bash(cmake:*)"
     ],
     "deny": [],
     "ask": []
