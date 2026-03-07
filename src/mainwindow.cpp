@@ -12,6 +12,8 @@
 #include <QMenu>
 #include <QAction>
 #include <QApplication>
+#include <QMenuBar>
+#include <QStatusBar>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent), ui(new Ui::MainWindow)
@@ -46,6 +48,14 @@ void MainWindow::setupUi()
     // Window flags
     setWindowFlags(Qt::FramelessWindowHint | Qt::WindowStaysOnTopHint | Qt::Tool);
     setAttribute(Qt::WA_TranslucentBackground);
+    if (menuBar())
+    {
+        menuBar()->hide();
+    }
+    if (statusBar())
+    {
+        statusBar()->hide();
+    }
 
     // Layout
     m_containerWidget = new QWidget(this);
@@ -132,7 +142,7 @@ void MainWindow::updateTiles(const QList<WindowInfo> &windows)
         else
         {
             // Create new tile for new window
-            tile = new WindowTile(info, this);
+            tile = new WindowTile(info, m_containerWidget);
             connect(tile, &WindowTile::activated, this, &MainWindow::activateWindow);
             connect(tile, &WindowTile::closed, this, &MainWindow::closeWindow);
             connect(tile, &WindowTile::launchRequested, this, &MainWindow::launchProcess);
@@ -153,6 +163,12 @@ void MainWindow::updateTiles(const QList<WindowInfo> &windows)
     }
 }
 
+int MainWindow::layoutHeightForWindowHeight(int windowHeight) const
+{
+    const int nonLayoutHeight = height() - m_containerWidget->height();
+    return qMax(0, windowHeight - nonLayoutHeight);
+}
+
 void MainWindow::adjustWindowGeometry()
 {
     QScreen *screen = getTargetScreen();
@@ -163,8 +179,8 @@ void MainWindow::adjustWindowGeometry()
     int bottomOffset = WinSelectorConfig::MainWindow::bottomOffset();
     int adjustedY = availableGeom.y() + topOffset;
     int adjustedHeight = availableGeom.height() - topOffset - bottomOffset;
-
-    int requiredWidth = m_flowLayout->totalWidthForHeight(adjustedHeight);
+    int layoutHeight = layoutHeightForWindowHeight(adjustedHeight);
+    int requiredWidth = m_flowLayout->totalWidthForHeight(layoutHeight);
 
     // Ensure minimum width to avoid tiny window when empty
     if (requiredWidth < WinSelectorConfig::MainWindow::minimumWidth())
@@ -177,8 +193,8 @@ void MainWindow::adjustWindowGeometry()
                 requiredWidth,
                 adjustedHeight);
 
-    // Force layout update even if size didn't change
-    m_flowLayout->setGeometry(m_containerWidget->rect());
+    // Force layout update using the actual host widget geometry
+    m_flowLayout->setGeometry(m_containerWidget->contentsRect());
 }
 
 void MainWindow::activateWindow(HWND hwnd)

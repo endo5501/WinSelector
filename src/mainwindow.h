@@ -97,6 +97,7 @@ private:
      * @brief Adjust the window geometry based on content
      */
     void adjustWindowGeometry();
+    int layoutHeightForWindowHeight(int windowHeight) const;
 
     /**
      * @brief Create and initialize the system tray icon

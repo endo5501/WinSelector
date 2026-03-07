@@ -128,9 +128,11 @@ QSize FlowLayout::getItemSize(QLayoutItem *item, bool testOnly) const
 
 bool FlowLayout::shouldWrapToNextColumn(int currentY, int itemHeight, const QRect &effectiveRect) const
 {
+    const int availableBottom = effectiveRect.y() + effectiveRect.height();
+
     // Wrap if we're not at the top and adding this item would exceed the bottom
     return effectiveRect.height() > 0 &&
-           currentY + itemHeight > effectiveRect.bottom() &&
+           currentY + itemHeight > availableBottom &&
            currentY > effectiveRect.y();
 }
 
