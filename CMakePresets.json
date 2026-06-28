@@ -25,6 +25,7 @@
           "CMAKE_CXX_COMPILER": "cl.exe",
           "CMAKE_C_COMPILER": "cl.exe",
           "CMAKE_PREFIX_PATH": "$env{QT_SDK_DIR}",
+          "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
           "CMAKE_INSTALL_PREFIX": "${sourceDir}/build/${presetName}/output"
         },
         "environment": {
