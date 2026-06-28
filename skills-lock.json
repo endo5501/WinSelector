@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "skills": {
+    "cc-rsg": {
+      "source": "endo5501/cc-rsg",
+      "sourceType": "github",
+      "skillPath": "skills/cc-rsg/SKILL.md",
+      "computedHash": "18328fe28955664b45b318cae3d8a2302ea8eb27293eb7a5b4cc02957c350e20"
+    }
+  }
+}
