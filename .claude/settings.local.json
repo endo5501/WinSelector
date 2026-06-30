@@ -8,9 +8,16 @@
       "Bash(openspec new:*)",
       "Bash(openspec status:*)",
       "Bash(openspec instructions:*)",
-      "Bash(cmake:*)"
+      "Bash(cmake:*)",
+      "mcp__plugin_qt-development-skills_qt-docs__qt_documentation_search",
+      "WebSearch",
+      "WebFetch(domain:www.qt.io)",
+      "WebFetch(domain:deepwiki.com)"
     ],
     "deny": [],
     "ask": []
+  },
+  "enabledPlugins": {
+    "qt-development-skills@qt-skills-and-tools": true
   }
 }
