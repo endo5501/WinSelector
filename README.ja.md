@@ -76,6 +76,13 @@ cmake --build ./build/Release_Windows --target install
    - icuuc.dll
    - プラットフォームプラグイン（platforms/フォルダのqwindows.dll）
 
+### SBOMの生成
+
+```cmd
+cmake --preset Release_Windows -DQT_GENERATE_SBOM=ON
+cmake --build ./build/Release_Windows --target install
+```
+
 ## 使用方法
 
 `WinSelector.exe`を実行するだけです。パネルが画面の右端に表示されます。

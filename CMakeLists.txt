@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.16)
 
-project(WinSelector VERSION 0.1 LANGUAGES CXX)
+project(WinSelector VERSION 1.0.0 LANGUAGES CXX)
 
 set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTOMOC ON)
@@ -55,9 +55,15 @@ set_target_properties(WinSelector PROPERTIES
     ${BUNDLE_ID_OPTION}
     MACOSX_BUNDLE_BUNDLE_VERSION ${PROJECT_VERSION}
     MACOSX_BUNDLE_SHORT_VERSION_STRING ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}
-    MACOSX_BUNDLE TRUE
     WIN32_EXECUTABLE TRUE
 )
+
+# MACOSX_BUNDLE should only be enabled on Apple platforms. Setting it
+# unconditionally makes Qt's SBOM helper build a bogus
+# "<name>.app/Contents/MacOS/<name>.exe" path on Windows.
+if(APPLE)
+    set_target_properties(WinSelector PROPERTIES MACOSX_BUNDLE TRUE)
+endif()
 
 include(GNUInstallDirs)
 install(TARGETS WinSelector
@@ -89,3 +95,24 @@ if(WIN32)
 endif()
 
 qt_finalize_executable(WinSelector)
+
+# ---- SBOM 生成 ----
+_qt_internal_setup_sbom()
+
+_qt_internal_sbom_begin_project(
+    SUPPLIER           "endo5501"
+    SUPPLIER_URL       "https://github.com/endo5501"
+    DOCUMENT_NAMESPACE "https://github.com/endo5501/WinSelector"
+    VERSION            "1.0.0"
+    LICENSE_EXPRESSION "MIT"
+)
+
+_qt_internal_add_sbom(WinSelector
+    SBOM_ENTITY_TYPE   EXECUTABLE
+    PACKAGE_VERSION    "${PROJECT_VERSION}"
+    RUNTIME_PATH       "${CMAKE_INSTALL_BINDIR}"
+    LICENSE_EXPRESSION "MIT"
+    COPYRIGHTS         "Copyright (C) 2026 endo5501"
+)
+
+_qt_internal_sbom_end_project()
