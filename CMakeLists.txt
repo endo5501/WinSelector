@@ -159,7 +159,9 @@ if(WINSELECTOR_CMAKE_SBOM)
         LICENSE "MIT")                 # exe のファイル行にも MIT を付与（既定は NOASSERTION）
 
     # --- Qt同梱SBOMへ連携（モジュール名を並べるだけ / cmake/QtSbomLink.cmake） ---
-    qt_sbom_link(Core Gui Widgets)
+    # FROM に直前の exe ファイルID(SBOM_LAST_SPDXID)を渡し、ターゲット単位で
+    # WinSelector.exe → 各Qtモジュール の DEPENDS_ON を張る。
+    qt_sbom_link(FROM "${SBOM_LAST_SPDXID}" Core Gui Widgets)
 
     sbom_finalize(NO_VERIFY)           # Python不要。VERIFYにしたい場合は spdx-tools を導入
 endif()

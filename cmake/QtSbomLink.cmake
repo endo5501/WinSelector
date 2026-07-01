@@ -4,15 +4,27 @@
 # (<qt_prefix>/sbom/*.spdx). This helper wires the current cmake-sbom
 # document to those, so listing Qt module names is all a project needs.
 #
-#   qt_sbom_link(Core Gui Widgets Network ...)
+#   qt_sbom_link([FROM <spdxid>] <Module> [<Module> ...])
 #
 # For each module it locates the Qt SBOM document that declares the module's
 # package (searching every *.spdx under <qt_prefix>/sbom), then calls
 # cmake-sbom's sbom_add(EXTERNAL ...) which emits an ExternalDocumentRef
-# (namespace + SHA1 auto-extracted from the file) and a DEPENDS_ON from this
-# project's root package. The Qt SBOM path and the module package SPDXID
-# (which carries a build-specific hash) are resolved dynamically, so the link
-# survives Qt reinstalls/updates.
+# (namespace + SHA1 auto-extracted from the file) and a DEPENDS_ON edge. The Qt
+# SBOM path and the module package SPDXID (which carries a build-specific hash)
+# are resolved dynamically, so the link survives Qt reinstalls/updates.
+#
+#   FROM <spdxid>  Source element of the DEPENDS_ON edge, i.e. depend at target
+#                  granularity. Pass a target's file SPDXID captured from
+#                  ${SBOM_LAST_SPDXID} right after sbom_add(TARGET ...):
+#                      sbom_add(TARGET B LICENSE MIT)          # B.exe
+#                      qt_sbom_link(FROM "${SBOM_LAST_SPDXID}" Widgets Xml Network)
+#                  When omitted, the edge originates from the project's ROOT
+#                  package (cmake-sbom's default) = project-level granularity.
+#                  Caveat: for a Windows SHARED library, sbom_add(TARGET) adds
+#                  the .dll then the .lib, so ${SBOM_LAST_SPDXID} is the import
+#                  .lib. That still conveys "library A uses <module>"; if you
+#                  must anchor on the .dll specifically, add it via
+#                  sbom_add(FILENAME .../A.dll SPDXID <id> ...) and pass FROM <id>.
 #
 # Prerequisites (caller side):
 #   find_package(Qt6 ...)      # provides Qt6_DIR
@@ -27,6 +39,13 @@ if(COMMAND qt_sbom_link)
 endif()
 
 function(qt_sbom_link)
+    cmake_parse_arguments(_qsl "" "FROM" "" ${ARGV})
+    set(_modules "${_qsl_UNPARSED_ARGUMENTS}")
+    if(NOT _modules)
+        message(WARNING "qt_sbom_link: no Qt module names given; nothing to do")
+        return()
+    endif()
+
     if(NOT DEFINED Qt6_DIR)
         message(WARNING "qt_sbom_link: Qt6_DIR is not set (call find_package(Qt6) first); skipped")
         return()
@@ -46,7 +65,7 @@ function(qt_sbom_link)
         return()
     endif()
 
-    foreach(_mod IN LISTS ARGV)
+    foreach(_mod IN LISTS _modules)
         set(_linked FALSE)
         foreach(_doc IN LISTS _docs)
             file(READ "${_doc}" _content)
@@ -61,10 +80,20 @@ function(qt_sbom_link)
                 # DocumentRef id must match ^DocumentRef-[-a-zA-Z0-9]+$ (no dots):
                 # sanitize the version dots etc. Unique per (document, module).
                 string(REGEX REPLACE "[^A-Za-z0-9]" "-" _ref_suffix "${_doc_stem}-${_mod}")
+
+                # With FROM, override the edge source (target-level). Without it,
+                # cmake-sbom's default originates the edge from the root package.
+                set(_rel "")
+                if(_qsl_FROM)
+                    set(_rel RELATIONSHIP
+                        "${_qsl_FROM} DEPENDS_ON DocumentRef-${_ref_suffix}:${_pkg_id}")
+                endif()
+
                 sbom_add(EXTERNAL "${_pkg_id}"
                     FILENAME "${_doc}"
                     RENAME   "${_doc_name}"
-                    SPDXID   "DocumentRef-${_ref_suffix}")
+                    SPDXID   "DocumentRef-${_ref_suffix}"
+                    ${_rel})
                 set(_linked TRUE)
                 break()
             endif()
