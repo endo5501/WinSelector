@@ -116,3 +116,58 @@ _qt_internal_add_sbom(WinSelector
 )
 
 _qt_internal_sbom_end_project()
+
+# ================= cmake-sbom (代替SBOM: Qt同梱SBOMへ連携) =================
+# 安定・文書化・Qtバージョン非依存の demcon/cmake-sbom でも SBOM を生成する。
+# -DWINSELECTOR_CMAKE_SBOM=ON の時だけ有効（通常/オフラインビルドには無影響）。
+option(WINSELECTOR_CMAKE_SBOM "Generate an additional SBOM via demcon/cmake-sbom" OFF)
+
+if(WINSELECTOR_CMAKE_SBOM)
+    include(FetchContent)
+    # SOURCE_SUBDIR に CMakeLists.txt の無い cmake/ を指すことで、MakeAvailable は
+    # ダウンロードのみ行い add_subdirectory をスキップする。これによりトップレベル
+    # CMakeLists.txt の自己lint（reuse_lint / Python必須）が走るのを防ぐ。
+    FetchContent_Declare(cmake_sbom
+        GIT_REPOSITORY https://github.com/demcon/cmake-sbom.git
+        GIT_TAG        v1.5.0
+        SOURCE_SUBDIR  cmake)
+    FetchContent_MakeAvailable(cmake_sbom)
+    list(APPEND CMAKE_MODULE_PATH "${cmake_sbom_SOURCE_DIR}/cmake")
+    include(sbom)
+
+    # CPE を明示指定しないと cmake-sbom は cpe_detect() で「OSのCPE」(windows_11) を
+    # 全パッケージに一律付与してしまう。アプリを表すCPEで上書きする。
+    # 注: これは自社製品の非公開CPEなので NVD には存在しない=脆弱性照合上の価値は無い
+    # （形式的な識別のみ）。またcmake-sbomの制約で、この値は依存/コンパイラ等
+    # 全パッケージにも一律付与される点は許容する。
+    sbom_generate(
+        OUTPUT       "${CMAKE_INSTALL_PREFIX}/sbom/winselector-cmake-sbom.spdx"
+        PROJECT      "WinSelector"
+        VERSION      "${PROJECT_VERSION}"
+        SUPPLIER     "endo5501"
+        SUPPLIER_URL "https://github.com/endo5501"
+        NAMESPACE    "https://github.com/endo5501/WinSelector"
+        LICENSE      "MIT"
+        COPYRIGHT    "Copyright (C) 2026 endo5501"
+        CPE          "cpe:2.3:a:endo5501:winselector:${PROJECT_VERSION}:*:*:*:*:*:*:*")
+
+    sbom_add(TARGET WinSelector        # インストール済み exe (SHA1) を追跡
+        LICENSE "MIT")                 # exe のファイル行にも MIT を付与（既定は NOASSERTION）
+
+    # --- Qt同梱SBOMへ EXTERNAL 連携（パス・SPDXIDは動的導出＝再インストール耐性） ---
+    get_filename_component(_qt_prefix "${Qt6_DIR}/../../.." ABSOLUTE)
+    set(_qt_sbom "${_qt_prefix}/sbom/qtbase-${Qt6_VERSION}.spdx")
+    if(EXISTS "${_qt_sbom}")
+        file(READ "${_qt_sbom}" _qtbase_spdx)
+        string(REGEX MATCH "SPDXRef-Package-qtbase-qt-module-Widgets-[0-9a-f]+"
+               _qt_widgets_id "${_qtbase_spdx}")
+        sbom_add(EXTERNAL "${_qt_widgets_id}"
+            FILENAME "${_qt_sbom}"
+            RENAME   "qtbase-${Qt6_VERSION}.spdx"
+            SPDXID   "DocumentRef-qtbase")
+    else()
+        message(WARNING "Qt SBOM not found at ${_qt_sbom}; EXTERNAL link skipped")
+    endif()
+
+    sbom_finalize(NO_VERIFY)           # Python不要。VERIFYにしたい場合は spdx-tools を導入
+endif()
